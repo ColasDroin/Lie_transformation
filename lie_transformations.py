@@ -46,7 +46,7 @@ def plotly_fig2array(fig):
 # ==================================================================================================
 def poisson_brackets(f, g, X, P):
     """This function is used to compute the Poisson brackets between f and g, with respect to the
-    variables in  X and P"""
+    variables in  X and P."""
     return sum([f.diff(xi) * g.diff(pi) - f.diff(pi) * g.diff(xi) for xi, pi in zip(X, P)])
 
 
@@ -98,7 +98,6 @@ def generate_hamiltonian(
     order 1 is quadrupole
     order 2 is sextupole
     order 3 is octupole
-    order 4 is decapole
     etc."""
 
     # Define symbols for magnet strength and bending radius if not provided
@@ -153,6 +152,9 @@ def generate_hamiltonian(
 # --- Functions to generate particles distributions
 # ==================================================================================================
 def generate_particle_distribution(std_u=10**-3, std_pu=10**-4, n_particles=500):
+    """This function is used to generate a set of n_particles particles with given position and
+    momenta."""
+
     # Define a set of particles with given position and momenta
     array_u = np.random.normal(0.0, std_u, size=n_particles)
     array_pu = np.random.normal(0.0, std_pu, size=n_particles)
@@ -161,6 +163,8 @@ def generate_particle_distribution(std_u=10**-3, std_pu=10**-4, n_particles=500)
 
 
 def get_twiss_and_emittance(array_u, array_pu):
+    """This function is used to compute the emittance and Twiss parameters from a set of particles
+    with given position and momenta."""
     # Compute the emittance
     std_u = array_u.std()
     std_pu = array_pu.std()
@@ -176,6 +180,8 @@ def get_twiss_and_emittance(array_u, array_pu):
 
 
 def get_contour_ellipse(array_u, array_pu, emittance, alpha, beta, gamma):
+    """This function is used to compute the contour of the ellipse (representing the emittance) in
+    the phase-space from a set of particles with given position and momenta."""
     # Compute the corresponding ellipse in the phase-spae
     u_ellipse = np.linspace(np.min(array_u), np.max(array_u), 100)
     p_ellipse = np.linspace(np.min(array_pu), np.max(array_pu), 100)
@@ -186,11 +192,13 @@ def get_contour_ellipse(array_u, array_pu, emittance, alpha, beta, gamma):
         + beta * p_ellipse**2
         - emittance
     )
-
     return u_ellipse, p_ellipse, ellipse
 
 
 def get_color_according_to_PCA_projection(array_u, array_pu):
+    """This function is used to compute a color for each particle according to its position in the
+    phase-space, using a PCA projection."""
+
     # Define colors according to PCA projection in 1D
     pca = PCA(n_components=1)
     pca.fit(np.array([array_u, array_pu]).T)
@@ -223,6 +231,9 @@ def simulate_transfer_truncated(
     array_u2=None,
     array_pu2=None,
 ):
+    """This function is used to simulate the transfer of a set of particles with a truncated map
+    obtained from a Lie transformation."""
+
     # Generate the hamiltonian and compute transformation
     H = generate_hamiltonian(magnet_order, delta, X, P, k=k_n)
     x_new, px_new, y_new, py_new = lie_transformation_hamiltonian_4D(
@@ -266,6 +277,7 @@ def simulate_transfer_truncated(
 def return_exact_map_for_quadrupole(
     X, P, array_u, array_pu, L=1.0, delta=0.0, k_n=0.1, y_map=False
 ):
+    """This function is used to return the exact (closed-form) map for a quadrupole."""
     # Get variables
     x, y = X
     px, py = P
@@ -287,6 +299,9 @@ def return_exact_map_for_quadrupole(
 
 
 def yoshida_coeff_calculator(order):
+    """This function is used to compute the Yoshida coefficients of a Lie transformation for a
+    given order."""
+
     S = [0.5, 1, 0.5]
     if order % 2 != 0:
         # print("Yoshida coefficients can only be computed for even orders.")
@@ -312,6 +327,9 @@ def yoshida_coeff_calculator(order):
 
 
 def symplectic_analytical_integrator(order_integrator, Hd, Hk, X, P, L, max_order_lie_transform=20):
+    """This function is used to compute the analytical, symplectic, maps representing the particle
+    trajectory when going through a multipole (with the corresponding hamiltonian)."""
+
     S = yoshida_coeff_calculator(order_integrator)
     l_transforms = []
     for idx, coeff in enumerate(S):
@@ -330,6 +348,9 @@ def symplectic_analytical_integrator(order_integrator, Hd, Hk, X, P, L, max_orde
 def symplectic_numerical_integrator(
     X, P, l_transforms, array_x=None, array_px=None, array_y=None, array_py=None
 ):
+    """This function is used to integrate the particle trajectory when going through a multipole
+    (with the corresponding hamiltonian), using a symplectic integrator."""
+
     # Evaluate the result of each successive transformation with lambdify
     array_x_transformed = np.copy(array_x)
     array_px_transformed = np.copy(array_px)
@@ -398,6 +419,9 @@ def simulate_transfer_symplectic_integrator(
     order_symplectic_integrator=4,
     max_order_lie_transform=20,
 ):
+    """This function is used to generate a Hamiltonian for a given multipole, generate the
+    corresponding symplectic map, and compute the transformed coordinates of the particles."""
+
     # Get separate Hamiltonians
     Hd, Hk = generate_hamiltonian(
         magnet_order, delta, X, P, k=k_n, return_separate_hamiltonians=True
@@ -435,6 +459,8 @@ def check_emittance_conservation_quadrupole(
     max_order_lie_transform=6,
     order_symplectic_integrator=4,
 ):
+    """This function is used to check if the emittance is conserved when simulating trajectories
+    through a quadrupole, using symplectic and non symplectic maps."""
     # Do integration
     l_emittance_x_truncated = []
     l_emittance_y_truncated = []
@@ -547,6 +573,7 @@ def plot_distribution(
     label_y=r"$p_u$",
     title=None,
 ):
+    """This function is used to plot the initial particle distribution."""
     fig = plx.scatter(
         x=array_u,
         y=array_pu,
@@ -594,6 +621,10 @@ def plot_interactive_distribution_quadrupole(
     fps=60,
     duration=5,
 ):
+    """This function is used to plot the transformation of the particle distribution when going
+    through a quadrupole, with either a truncated or symplectic map, and compare it with the
+    corresponding closed-form solution.
+    """
     fig = make_subplots(
         rows=1,
         cols=2,
@@ -758,6 +789,9 @@ def plot_interactive_distribution_x_y(
     fps=60,
     duration=5,
 ):
+    """This function is used to compare all maps (truncated, symplectic, and exact if available) in
+    phase-space  and real space for a given particle distribution going through a multipole."""
+
     n_rows = 3 if exact_map_quadrupole else 2
     fig = make_subplots(
         rows=n_rows,
@@ -992,6 +1026,7 @@ def plot_emittance_conservation(
     l_emittance_y_exact,
     l_strength,
 ):
+    """This function allows to plot the output of check_emittance_conservation_quadrupole()."""
     # Plot the result
     fig = go.Figure()
     fig.add_trace(
