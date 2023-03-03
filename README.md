@@ -2,7 +2,7 @@
 
 Small Python module to generate the Hamiltonian for a given multipole order, and find the Lie transformation accordingly.
 
-Possibility to make the mqp symplectic by computing the corresponding Yoshida coefficients. Then compare the results for a closed-form solution, truncated map, and symplectic truncated map.
+Possibility to make the map symplectic by computing the corresponding Yoshida coefficients. Then compare the results for a closed-form solution, truncated map, and symplectic truncated map.
 
 Outputs are made with ipywidgets and elements strength can be varied interactively, or outputs can be saved as gifs (see below).
 
