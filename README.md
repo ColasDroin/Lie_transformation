@@ -17,6 +17,7 @@ Outputs are made with ipywidgets and elements strength can be varied interactive
 ##  Comparison between all maps in phase-space and real space for quadrupole
 
 ![](https://github.com/ColasDroin/Lie_transformation/blob/master/gifs/3.gif)
+
 ##  Comparison between all maps in phase-space and real space for non-linear element (sextupole)
 
 ![](https://github.com/ColasDroin/Lie_transformation/blob/master/gifs/4.gif)
